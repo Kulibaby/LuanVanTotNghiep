@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput, FlatList, A
 import React, { useState, useEffect } from 'react';
 import { db } from './../../configs/FirebaseConfig';
 import { addDoc, collection, getDocs, orderBy, query, deleteDoc, doc, onSnapshot } from 'firebase/firestore';
-import DateTimePickerModal from 'react-native-modal-datetime-picker'; // Cập nhật
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Colors } from './../../constants/Colors';
 
@@ -14,16 +14,6 @@ export default function DiaryScreen() {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [selectedDateString, setSelectedDateString] = useState(selectedDateTime.toLocaleString());
 
-    // Fetch tasks when the component mounts
-    // useEffect(() => {
-    //     const fetchTasks = async () => {
-    //         const tasksCollection = query(collection(db, 'tasks'), orderBy('createdAt', 'asc'));
-    //         const taskSnapshot = await getDocs(tasksCollection);
-    //         setTasks(taskSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
-    //     };
-    //     fetchTasks();
-    // }, []);
-
     useEffect(() => {
         const tasksCollection = query(collection(db, 'tasks'), orderBy('createdAt', 'asc'));
         const unsubscribe = onSnapshot(tasksCollection, (snapshot) => {
@@ -32,12 +22,18 @@ export default function DiaryScreen() {
                 id: doc.id,
                 dateTime: doc.data().dateTime ? doc.data().dateTime.toDate() : null,
             }));
-            setTasks(tasksData);
+            console.log("Tasks data with ID:", tasksData);
         });
         return () => unsubscribe();
     }, []);
 
     const saveTask = async () => {
+
+        if (!taskDescription.trim()) {
+            Alert.alert("Nội dung nội nhiệm vụ không được để trống!");
+            return;
+        }
+
         try {
             if (taskDescription.trim()) {
                 const docRef = await addDoc(collection(db, 'tasks'), {
@@ -108,7 +104,7 @@ export default function DiaryScreen() {
                             </TouchableOpacity>
                         </View>
                     )}
-                    keyExtractor={item => item.id}
+                    keyExtractor={item => item.id || Math.random().toString(36).substring(7)}
                 />
             </View>
 
@@ -140,13 +136,16 @@ export default function DiaryScreen() {
                                 onCancel={() => setShowDatePicker(false)}
                             />
 
-                            {/* TextInput để hiển thị ngày đã chọn */}
-                            <TextInput
-                                placeholder="Ngày đã chọn"
-                                value={selectedDateString}
-                                editable={false} // Không cho phép chỉnh sửa
-                                style={{ marginTop: 10, padding: 10, borderColor: '#ccc', borderWidth: 1 }}
-                            />
+                            <View onPress={() => setShowDatePicker(true)} style={{ marginTop: 10,}}>
+                                <Text style={{
+                                    padding: 10,
+                                    borderColor: Colors.GRAY,
+                                    borderWidth: 1,
+                                    borderRadius: 10
+                                }}>
+                                    {selectedDateString || "Chọn ngày"}
+                                </Text>
+                            </View>
 
                             <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateButton}>
                                 <Ionicons name="calendar" size={40} color="black" />
@@ -196,7 +195,7 @@ const styles = StyleSheet.create({
     taskItem: { 
         flexDirection: 'row', 
         alignItems: 'center', 
-        justifyContent: 'space-between', // Đẩy deleteButton sang bên phải
+        justifyContent: 'space-between',
         padding: 10, 
         marginVertical: 5, 
         backgroundColor: '#eaeaea', 
@@ -204,7 +203,7 @@ const styles = StyleSheet.create({
     },
     taskText: { 
         fontSize: 16, 
-        flex: 1, // Cho phép phần văn bản chiếm không gian còn lại
+        flex: 1,
         marginRight: 10,
     },
     deleteButton: {
@@ -217,16 +216,17 @@ const styles = StyleSheet.create({
         marginLeft: 'auto',
     },
     addButton: { 
-        
+        position: 'absolute',
         alignSelf: 'center', 
-        marginBottom: 20 
+        bottom: 10,
+        zIndex: 1,
     },
     input: { 
         borderWidth: 1, 
-        borderColor: '#ccc', 
+        borderColor: Colors.GRAY, 
         padding: 10, 
         marginBottom: 10, 
-        borderRadius: 5 
+        borderRadius: 10, 
     },
     containerButton: {
         flexDirection: 'row',

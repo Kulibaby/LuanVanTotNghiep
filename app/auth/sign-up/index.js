@@ -58,6 +58,7 @@ export default function SignUp() {
       })
     })
     .then(() => {
+      ToastAndroid.show("Đăng ký thành công!", ToastAndroid.LONG);
       console.log("Thông tin người dùng được lưu thành công!");
     // Điều hướng đến màn hình đăng nhập
       router.replace("auth/sign-in");
@@ -72,11 +73,6 @@ export default function SignUp() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.pageSignUp}>
-        <TouchableOpacity style={styles.icon}
-            onPress={()=>router.back()}>
-            <Ionicons name="arrow-back" size={30} color="black" />
-        </TouchableOpacity>
-
         <View>
             <Text style={{
             fontFamily: 'outfit-bold',
@@ -89,11 +85,7 @@ export default function SignUp() {
         </View>
 
         <View style={styles.container}>
-          <Text style={{
-            fontFamily: 'outfit-medium',
-            fontSize: 17,
-            paddingHorizontal: 10,
-          }}>Nhập họ và tên</Text>
+          <Text style={styles.textInput}>Nhập họ và tên</Text>
           <TextInput 
             style={styles.input}
             placeholder='Nhập họ và tên...'
@@ -101,11 +93,7 @@ export default function SignUp() {
           />
         </View>
         <View style={styles.container}>
-          <Text style={{
-            fontFamily: 'outfit-medium',
-            fontSize: 17,
-            paddingHorizontal: 10,
-          }}>Email</Text>
+          <Text style={styles.textInput}>Email</Text>
           <TextInput 
           style={styles.input}
           placeholder='Nhập email...'
@@ -115,11 +103,7 @@ export default function SignUp() {
       
         {/* Password */}
         <View style={styles.container}>
-          <Text style={{
-            fontFamily: 'outfit-medium',
-            fontSize: 17,
-            paddingHorizontal: 10,
-          }}>Mật khẩu</Text>
+          <Text style={styles.textInput}>Mật khẩu</Text>
           <TextInput 
             style={styles.input}
             placeholder='Nhập mật khẩu...'  
@@ -129,11 +113,7 @@ export default function SignUp() {
         </View>
 
         <View style={styles.container}>
-          <Text style={{
-            fontFamily: 'outfit-medium',
-            fontSize: 17,
-            paddingHorizontal: 10,
-          }}>Nhập lại mật khẩu</Text>
+          <Text style={styles.textInput}>Nhập lại mật khẩu</Text>
           <TextInput 
             style={styles.input}
             placeholder='Nhập lại mật khẩu...'  
@@ -144,38 +124,14 @@ export default function SignUp() {
     
         <TouchableOpacity
           onPress={createAccount}
-          style={{
-            marginTop: 30,
-            marginLeft: 60,
-            marginRight: 60,
-        }}> 
-          <Text style={{
-            fontSize: 20,
-            fontFamily: 'outfit-bold',
-            textAlign: 'center',
-            color: Colors.WHITE,
-            backgroundColor: Colors.PRIMARY,
-            borderRadius: 30,
-            padding: 10,
-          }}>Đăng ký</Text>
+          style={styles.button}> 
+          <Text style={styles.textButton}>Đăng ký</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           onPress={()=>router.replace('auth/sign-in')}
-          style={{
-            marginTop: 30,
-            marginLeft: 60,
-            marginRight: 60,
-        }}> 
-          <Text style={{
-            fontSize: 20,
-            fontFamily: 'outfit-bold',
-            textAlign: 'center',
-            color: Colors.WHITE,
-            backgroundColor: Colors.PRIMARY,
-            borderRadius: 30,
-            padding: 10,
-          }}>Quay lại đăng nhập</Text>
+          style={styles.button}> 
+          <Text style={styles.textButton}>Quay lại đăng nhập</Text>
         </TouchableOpacity> 
       </View>
     </TouchableWithoutFeedback>
@@ -199,9 +155,24 @@ const styles = StyleSheet.create({
       fontFamily: 'outfit',
       marginTop: 10
     },
-    icon: {
-      marginTop: 10,
-      padding: 5
-    }
+    textInput: {
+      fontFamily: 'outfit-medium',
+      fontSize: 17,
+      paddingHorizontal: 10,
+    },
+    button: {
+      marginTop: 30,
+      marginLeft: 60,
+      marginRight: 60,
+    },
+    textButton: {
+      fontSize: 20,
+      fontFamily: 'outfit-bold',
+      textAlign: 'center',
+      color: Colors.WHITE,
+      backgroundColor: Colors.PRIMARY,
+      borderRadius: 30,
+      padding: 10,
+    },
   })
 

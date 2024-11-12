@@ -1,11 +1,17 @@
-import { View, Text, Image, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, Image, StyleSheet, ToastAndroid, TextInput, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation } from 'expo-router'
 import { Colors } from './../../constants/Colors'
+import { auth, db } from './../../configs/FirebaseConfig'
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 export default function personalData() {
 
   const navigation = useNavigation();
+  const [user, setUser] = useState(null);
+  const [phone, setPhone] = useState('');
+  const [dayOfBirth, setDayOfBirth] = useState('');
+  const [address, setAddress] = useState('');
 
   useEffect(()=> {
     navigation.setOptions({
@@ -15,36 +21,86 @@ export default function personalData() {
     })
   }, []);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setUser(userData);
+            setPhone(userData.phone || '');
+            setDayOfBirth(userData.dayOfBirth || '');
+            setAddress(userData.address || '');
+          } else {
+            console.log("Không tìm thấy thông tin người dùng trong Firestore!");
+          }
+        }
+      } catch (error) {
+        console.log("Lỗi khi lấy thông tin người dùng:", error);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+const updateUserData = async () => {
+  try {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      await updateDoc(doc(db, "users", currentUser.uid), {
+        phone,
+        dayOfBirth,
+        address,
+      });
+      console.log("Cập nhật thông tin thành công!");
+      ToastAndroid.show("Cập nhật thành công!", ToastAndroid.LONG);
+    }
+  } catch (error) {
+    console.log("Lỗi khi lấy thông tin người dùng:", error);
+  }
+}
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Image
           source={require('./../../assets/images/avt-profile.jpg')}
           style={styles.avatar}
         />
+        <Text style={styles.user}>{user?.fullName}</Text>
       </View>
 
       <View style={styles.main}>
-        <Text style={styles.label}>Họ và tên:</Text>
-        <TextInput style={styles.input} />
 
-        <Text style={styles.label}>Email:</Text>
-        <TextInput style={styles.input} />
+        <Text style={styles.label}>Email: {user?.email}</Text>
+        
 
         <Text style={styles.label}>Số điện thoại:</Text>
-        <TextInput style={styles.input} />
+        <TextInput style={styles.input} 
+          value={phone}
+          onChangeText={setPhone}
+        />
 
         <Text style={styles.label}>Ngày Sinh:</Text>
-        <TextInput style={styles.input} />
+        <TextInput style={styles.input} 
+          value={dayOfBirth}
+          onChangeText={setDayOfBirth}
+        />
 
         <Text style={styles.label}>Địa chỉ:</Text>
-        <TextInput style={styles.input} />
+        <TextInput style={styles.input} 
+          value={address}
+          onChangeText={setAddress}
+        />
 
-        <TouchableOpacity style={styles.containerButton}>
+        <TouchableOpacity style={styles.containerButton}
+          onPress={updateUserData}
+        >
           <Text style={styles.button}>Cập nhật thông tin</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   )
 }
 
@@ -64,11 +120,17 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
   },
+  user: {
+    fontSize: 20,
+    fontFamily: 'outfit-regular',
+    textAlign: 'center',
+    marginTop: 10,
+  },
   main: {
     flex: 1,
     marginTop: 20,
   },
-  lable: {
+  label: {
     fontSize: 16,
     fontFamily: 'outfit-bold',
     marginVertical: 5,

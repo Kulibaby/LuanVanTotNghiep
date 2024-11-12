@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { useNavigation, useRouter } from 'expo-router'
 import { Colors } from '../../../constants/Colors'
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { auth, provider } from '../../../configs/FirebaseConfig'
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from '../../../configs/FirebaseConfig'
 
 export default function SignIn() {
 
@@ -24,13 +24,13 @@ export default function SignIn() {
 
   const login = () => {
     if(!email || !password) {
-      ToastAndroid.show("Vui lòng nhập Email và Mật khẩu!!", ToastAndroid.BOTTOM);
+      ToastAndroid.show("Vui lòng nhập Email và Mật khẩu!!", ToastAndroid.LONG);
       return;
     }
 
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      // Signed in 
+      // đn
       const user = userCredential.user;
       
       //Chuyển hướng đăng nhập thành công
@@ -59,6 +59,7 @@ export default function SignIn() {
         {
           ToastAndroid.show("Lỗi! đăng nhập thất bại.", ToastAndroid.LONG);
         } 
+        console.log(errorMessage, errorCode);
     });
   }
 
@@ -73,12 +74,7 @@ export default function SignIn() {
 
         <View style={styles.imgContainer}>
             <Image source={require('./../../../assets/images/logo_signin.png')}
-                style={{
-                  width: '80%',
-                  marginTop: 50,
-                  height: 200,
-                  padding: 10,
-                }}
+                style={styles.imgLogo}
             />
         </View>
 
@@ -92,9 +88,7 @@ export default function SignIn() {
         </View>
 
         {/* SignIn Email */}
-        <View style={{
-          marginTop: 20
-        }}>
+        <View style={{ marginTop: 20 }}>
           <Text style={styles.title}>Email</Text>
           <TextInput 
             style={styles.input}
@@ -103,9 +97,7 @@ export default function SignIn() {
         </View>
       
         {/* Password */}
-        <View style={{
-          marginTop: 20
-        }}>
+        <View style={{ marginTop: 20 }}>
           <Text style={styles.title}>Mật khẩu</Text>
           <TextInput 
             style={styles.input}
@@ -152,6 +144,12 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       
+    },
+    imgLogo: {
+      width: '80%',
+      marginTop: 10,
+      height: 200,
+      padding: 10,
     },
     title: {
       fontFamily: 'outfit-medium',

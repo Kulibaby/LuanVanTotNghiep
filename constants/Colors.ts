@@ -8,9 +8,9 @@ export const Colors = {
   GRAY_2: '#ddd',
   LIGHT_PRIMARY: '#5dade2',
   DARK_PRIMARY: '#21618c',
-  Green_Mix: '#7FD671',
   Green: '#ACDEAA',
   Green_YL: '#DBE9B7',
+  Green_W: '#83f28f',
   Blue: '#0000FF',
   Red: '#ffdddd',
   light: {
