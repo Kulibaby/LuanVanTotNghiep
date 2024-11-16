@@ -110,7 +110,7 @@ export default function DiaryScreen() {
 
             {/* Create Task Button */}
             <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-                <Ionicons name="add-circle-sharp" size={60} color="black" />
+                <Ionicons name="add-circle-sharp" size={60} color={Colors.Green} />
             </TouchableOpacity>
 
             {/* Task Creation Modal */}
@@ -167,15 +167,22 @@ export default function DiaryScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#fff' },
+    container: { 
+        flex: 1, 
+        backgroundColor: Colors.WHITE,
+        padding: 15,
+    },
     title: {
-        fontSize: 20,
-        fontFamily: 'outfit-bold',
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: Colors.WHITE,
+        marginBottom: 20,
         textAlign: 'center',
         backgroundColor: Colors.Green,
-        color: Colors.WHITE,
-        padding: 20,
-        marginTop: 30,
+        padding: 15,
+        marginTop: 20,
+        borderRadius: 5,
+        elevation: 3,
     },
     containerTaskList: {
         padding: 20,

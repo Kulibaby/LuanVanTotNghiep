@@ -79,27 +79,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: 5,
-        backgroundColor: Colors.Green_Mix
+        backgroundColor: Colors.Green_W,
     },
     logo: {
         width: 120,
         height: 80,
-        resizeMode: 'contain'
-    },
-    searchBar: {
-        flex: 1,
-        marginLeft: 30,
-        marginRight: 10,
-        padding: 10,
-        backgroundColor: Colors.WHITE,
-        borderRadius: 30,
-        borderWidth: 1.5,
-        borderColor: Colors.GRAY,
+        resizeMode: 'contain',
+        marginTop: 15,
     },
     main: {
         padding: 10,
     },
     imgMain: {
+        width: '100%',
         height: 250,
         borderRadius: 10,
         marginBottom: 10,
