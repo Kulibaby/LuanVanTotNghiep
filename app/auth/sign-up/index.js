@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
       borderColor: Colors.GRAY,
       borderWidth: 1,
       borderRadius: 30,
-      fontFamily: 'outfit',
+      fontFamily: 'outfit-bold',
       marginTop: 10
     },
     textInput: {

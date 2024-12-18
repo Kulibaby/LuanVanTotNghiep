@@ -1,14 +1,15 @@
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native'
 import React, { useEffect } from 'react'
-import { useNavigation } from 'expo-router'
-
-export default function supportUser() {
+import { useNavigation, useRouter } from 'expo-router'
+import {Colors} from './../../constants/Colors'
+export default function SupportUser() {
 
   const navigation = useNavigation();
+  const router = useRouter();
 
   useEffect(()=> {
     navigation.setOptions({
-      headerShows: true,
+      headerShown: true,
       headerTransparent: true,
       headerTitle: 'Trợ giúp & hỗ trợ',
     })
@@ -18,15 +19,15 @@ export default function supportUser() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Chúng tôi có thể giúp gì cho bạn?</Text>
 
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Câu hỏi thường gặp (FAQs)</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={()=>router.push('centreService/ContactSupportPage')}
+        activeOpacity={0.8}
+      >
         <Text style={styles.buttonText}>Liên hệ hỗ trợ</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={()=>router.push('centreService/PrivacyPolicyPage')}>
         <Text style={styles.buttonText}>Chính sách bảo mật</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: Colors.WHITE,
   },
   title: {
     fontSize: 20,
@@ -48,14 +49,14 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '100%',
-    backgroundColor: '#007AFF',
+    backgroundColor: Colors.Blue,
     padding: 15,
     borderRadius: 10,
     marginBottom: 15,
     alignItems: 'center',
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: Colors.WHITE,
     fontSize: 16,
     fontWeight: 'bold',
   },

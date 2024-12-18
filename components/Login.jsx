@@ -30,7 +30,7 @@ export default function Login() {
 
                 <Text style={{
                     fontSize: 20,
-                    fontFamily: 'outfit-medium',
+                    fontFamily: 'outfit-regular',
                     textAlign: 'center',
                     color: Colors.GRAY,
                     marginTop: 15,
@@ -45,7 +45,7 @@ export default function Login() {
                     <Text style={{
                         color: Colors.WHITE,
                         textAlign: 'center',
-                        fontFamily: 'outfit-bold',
+                        fontWeight: 'bold',
                         fontSize: 20,
 
                     }}>Bắt Đầu Đăng Nhập</Text>

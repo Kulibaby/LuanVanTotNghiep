@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigation, useRouter } from 'expo-router'
 import { Colors } from '../../../constants/Colors'
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { auth, provider } from '../../../configs/FirebaseConfig'
+import { auth } from '../../../configs/FirebaseConfig'
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function SignIn() {
@@ -27,6 +27,7 @@ export default function SignIn() {
       ToastAndroid.show("Vui lòng nhập Email và Mật khẩu!!", ToastAndroid.LONG);
       return;
     }
+
 
     signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
@@ -121,14 +122,6 @@ export default function SignIn() {
         > 
           <Text style={styles.button}>Tạo tài khoản mới?</Text> 
         </TouchableOpacity>
-
-        <TouchableOpacity style={{
-          marginTop: 25,
-          marginLeft: 40,
-          marginRight: 40,
-        }}> 
-          <Text style={styles.buttonGoogle}>Đăng nhập với Google ?</Text>
-        </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
   )
@@ -161,13 +154,12 @@ const styles = StyleSheet.create({
       borderColor: Colors.GRAY,
       borderWidth: 1,
       borderRadius: 30,
-      fontFamily: 'outfit',
+      fontFamily: 'outfit-bold',
       marginTop: 10
     },
     icon: {
       marginTop: 10,
-      padding: 5
-  
+      padding: 5,
     },
     containerButton: {
       marginTop: 25,

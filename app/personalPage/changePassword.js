@@ -1,47 +1,111 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
-import React, { useEffect} from 'react'
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ToastAndroid } from 'react-native'
+import React, { useEffect, useState} from 'react'
 import { useNavigation } from 'expo-router'
+import { Colors } from './../../constants/Colors'
+import { auth } from './../../configs/FirebaseConfig'
+import { reauthenticateWithCredential, EmailAuthProvider, updatePassword } from 'firebase/auth';
 
-export default function changePassword() {
+export default function ChangePassword() {
 
   const navigation = useNavigation();
 
+  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+
   useEffect(()=> {
     navigation.setOptions({
-      headerShows: true,
+      headerShown: true,
       headerTransparent: true,
       headerTitle: 'Đổi mật khẩu',
     })
   }, []);
 
+
+
+  const handleChangePassword = async () => {
+
+    const user = auth.currentUser;
+
+    if (!password.trim() || !newPassword.trim() || !confirmNewPassword.trim()) {
+      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ mật khẩu cũ và mật khẩu mới.');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      Alert.alert('Lỗi', 'Mật khẩu mới phải có ít nhất 8 ký tự.');
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      ToastAndroid.show('Lỗi! Mật khẩu mới không khớp.', ToastAndroid.SHORT);
+      return;
+    }
+
+
+    if (user) {
+      try {
+        // xac thuc
+        const credential  = EmailAuthProvider.credential(user.email, password);
+        await reauthenticateWithCredential(user, credential);
+
+        //upadte new mk
+        updatePassword(user, newPassword)
+        .then(() => {
+          ToastAndroid.show('Mật khẩu đã được thay đổi thành công.', ToastAndroid.SHORT);
+          navigation.goBack(); 
+        })
+        .catch((error) => {
+          console.error('Lỗi đổi mật khẩu: ', error);
+          Alert.alert('Lỗi', `Đổi mật khẩu thất bại: ${error.message}`);
+        });
+      } catch (error) {
+        if (error.code === 'auth/wrong-password') {
+          Alert.alert('Lỗi', 'Mật khẩu hiện tại không đúng.');
+        } else {
+          Alert.alert('Lỗi', `Đổi mật khẩu thất bại: ${error.message}`);
+        }
+      }
+    }
+  }
+
+
   return (
-    <View>
-      <Text style={styles.title}>Đổi mật khẩu</Text>
+    <View style={styles.container}>
+      <View style={{marginTop: 50}}>
+      <Text style={styles.title}>Đổi Mật Khẩu</Text>
+      <View style={styles.box}>
+        <TextInput 
+          style={styles.input}
+          placeholder='Mật khẩu hiện tại'
+          secureTextEntry={true}
+          onChangeText={(value) => setPassword(value)}
+        />
+      </View>
 
-<TextInput
-  style={styles.input}
-  placeholder="Mật khẩu cũ"
+      <View style={styles.box}>
+        <TextInput 
+          style={styles.input}
+          placeholder='Mật khẩu mới'
+          secureTextEntry={true}
+          onChangeText={(value) => setNewPassword(value)}
+        />
+      </View>
 
+      <View style={styles.box}>
+        <TextInput 
+          style={styles.input}
+          placeholder='Nhập lại mật khẩu mới'
+          secureTextEntry={true}
+          onChangeText={(value) => setConfirmNewPassword(value)}
+        />
+      </View>
 
-/>
-
-<TextInput
-  style={styles.input}
-  placeholder="Mật khẩu mới"
-
-
-/>
-
-<TextInput
-        style={styles.input}
-        placeholder="Xác nhận mật khẩu mới"
-  
-      />
-        {/* {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null} */}
-
-<TouchableOpacity style={styles.button}>
-  <Text style={styles.buttonText}>Lưu thay đổi</Text>
-</TouchableOpacity>
+      <TouchableOpacity
+          style={styles.button} onPress={handleChangePassword}> 
+          <Text style={styles.textButton}>Đổi mật khẩu</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   )
 }
@@ -49,40 +113,38 @@ export default function changePassword() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: Colors.WHITE,
     padding: 20,
-    backgroundColor: '#F5F5F5',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
+    fontFamily: 'outfit-bold',
+    fontSize: 30,
+    marginTop: 40,
+    textAlign: 'center'
+  },
+  box: {
+    marginTop: 20,
   },
   input: {
-    height: 50,
-    borderColor: '#DDDDDD',
+    padding: 15,
+    borderColor: Colors.GRAY,
     borderWidth: 1,
-    borderRadius: 10,
-    paddingLeft: 15,
-    marginBottom: 15,
-    backgroundColor: '#FFFFFF',
+    borderRadius: 30,
+    fontFamily: 'outfit',
+    marginTop: 10
   },
   button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
+    marginTop: 30,
+    marginLeft: 60,
+    marginRight: 60,
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  errorText: {
-    color: 'red',
-    fontSize: 14,
-    marginBottom: 15,
+  textButton: {
+    fontSize: 20,
+    fontFamily: 'outfit-bold',
     textAlign: 'center',
+    color: Colors.WHITE,
+    backgroundColor: Colors.PRIMARY,
+    borderRadius: 30,
+    padding: 10,
   },
 });

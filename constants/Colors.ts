@@ -11,8 +11,11 @@ export const Colors = {
   Green: '#ACDEAA',
   Green_YL: '#DBE9B7',
   Green_W: '#83f28f',
-  Blue: '#0000FF',
-  Red: '#ffdddd',
+  Green_x1: '#DBDEBA',
+  Green_x2: '#3C6654',
+  Blue: '#1E90FF',
+  Red: '#FF3333',
+  Yello: '#FFE4B5',
   light: {
     text: '#11181C',
     background: '#fff',

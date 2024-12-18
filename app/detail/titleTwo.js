@@ -141,6 +141,8 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     paddingBottom: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
   },
   newsImage: {
     width: "90%",

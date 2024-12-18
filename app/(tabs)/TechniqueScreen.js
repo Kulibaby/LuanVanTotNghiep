@@ -1,5 +1,12 @@
-import {View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Alert, }
-from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { Colors } from "./../../constants/Colors";
 import { Picker } from "@react-native-picker/picker";
@@ -11,19 +18,23 @@ export default function TechniqueScreen() {
   const navigation = useNavigation();
 
   const [selectedPlant, setSelectedPlant] = useState(null);
+  const [fertilizer, setFertilizer] = useState("");
+
+  // sau rieng
   const [area, setArea] = useState("");
   const [treeCount, setTreeCount] = useState("");
-  const [fertilizer, setFertilizer] = useState("");
-  const [numberOfFertilizer, setNumberOfFertilizer] = useState("");
-  const [estimatedCost, setEstimatedCost] = useState("");
+  const [fertilizerPerTree, setFertilizerPerTree] = useState("");
+
   const [actualCost, setActualCost] = useState(null);
 
+
+
+  //reset value
   useEffect(() => {
     setArea("");
     setTreeCount("");
+    setFertilizerPerTree("");
     setFertilizer("");
-    setNumberOfFertilizer("");
-    setEstimatedCost("");
     setActualCost(null);
   }, [selectedPlant]);
 
@@ -55,9 +66,8 @@ export default function TechniqueScreen() {
       setSelectedPlant(null);
       setArea("");
       setTreeCount("");
+      setFertilizerPerTree("");
       setFertilizer("");
-      setNumberOfFertilizer("");
-      setEstimatedCost("");
     } else {
       setSelectedPlant(itemValue);
     }
@@ -66,11 +76,22 @@ export default function TechniqueScreen() {
   // Đơn vị tính 1 hecta = 10.000 m2
 
   //hàm tính toán chi phí phân bón
-  const calculateCost = async () => {
+  const calculateCost = async (value) => {
     if (!area || !treeCount || !fertilizer) {
       Alert.alert("Thông báo", "Vui lòng nhập đầy đủ thông tin.");
       return;
     }
+
+    if (parseFloat(area) <= 0 || parseFloat(treeCount) <= 0 || parseFloat(fertilizerPerTree) <=0) {
+      Alert.alert("Thông báo", "Đơn vị tính cho cây phải lớn hơn 0.");
+      return;
+    }
+
+    if (!Number.isInteger(parseFloat(treeCount))) {
+      Alert.alert("Thông báo", "Số lượng cây phải là một số nguyên.");
+      return;
+    }
+
     try {
       // Lấy data phân bón từ Firestore
       const docRef = doc(db, "fertilizers", fertilizer);
@@ -78,12 +99,46 @@ export default function TechniqueScreen() {
 
       if (docSnap.exists()) {
         const fertilizerPrice = docSnap.data().pricePerUnit;
-        const totalCost = (
-          parseFloat(area) *
-          parseFloat(treeCount) *
-          fertilizerPrice
-        ).toFixed(0);
-        setActualCost(totalCost);
+        // const numberDays = 365;
+        
+        
+        // Xác định công thức theo loại cây trồng
+      let totalCost = 0;
+      switch (value) {
+        case "saurieng":
+          // Công thức cho sầu riêng
+          const numberDayforDurian = 365;
+          const fertilizerForOneTree = parseFloat(fertilizerPerTree) * numberDayforDurian;
+          const fertilizerForTree = parseInt(treeCount) * fertilizerForOneTree;
+          totalCost = (fertilizerForTree * fertilizerPrice).toFixed(0);
+          const formattedTotalCostSR = Number(totalCost).toLocaleString();
+          setActualCost(formattedTotalCostSR);
+          break;
+
+        case "cam":
+            // Công thức cho cam
+          const numberDayforOrange = 365;
+          const fertilizerForOrange = parseFloat(fertilizerPerTree) * numberDayforOrange;
+          const fertilizerForTreeOrange = parseInt(treeCount) * fertilizerForOrange;
+          totalCost = (fertilizerForTreeOrange * fertilizerPrice).toFixed(0);
+          const formattedTotalCostC = Number(totalCost).toLocaleString();
+          setActualCost(formattedTotalCostC);
+          break;
+
+        case "lua":
+          // Công thức cho lúa
+          const fertilizerForRice = parseInt(treeCount) * parseFloat(fertilizerPerTree) * parseInt(area);
+          totalCost = (fertilizerForRice * fertilizerPrice).toFixed(0);
+          const formattedTotalCostL = Number(totalCost).toLocaleString();
+          setActualCost(formattedTotalCostL);
+          break;
+
+        default:
+          Alert.alert("Thông báo", "Loại cây trồng không hợp lệ.");
+          return;
+      }
+
+
       } else {
         Alert.alert("Thông báo", "Không tìm thấy thông tin phân bón.");
       }
@@ -119,7 +174,7 @@ export default function TechniqueScreen() {
       {/* Sầu riêng */}
       {selectedPlant === "saurieng" && (
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Diện tích đất (m²):</Text>
+          <Text style={styles.label}>Diện tích đất (m2):</Text>
           <TextInput
             style={styles.input}
             placeholder="Nhập diện tích đất"
@@ -128,7 +183,7 @@ export default function TechniqueScreen() {
             onChangeText={setArea}
           />
 
-          <Text style={styles.label}>Số gốc cây:</Text>
+          <Text style={styles.label}>Số cây (Gốc sầu riêng):</Text>
           <TextInput
             style={styles.input}
             placeholder="Nhập số gốc sầu riêng"
@@ -137,43 +192,36 @@ export default function TechniqueScreen() {
             onChangeText={setTreeCount}
           />
 
+          <Text style={styles.label}>Số phân bón cho mỗi cây (kg/ngày):</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nhập số phân bón cây"
+            keyboardType="numeric"
+            value={fertilizerPerTree}
+            onChangeText={setFertilizerPerTree}
+          />
+
           <Text style={styles.label}>Loại phân bón:</Text>
           <Picker
             selectedValue={fertilizer}
             onValueChange={(itemValue) => setFertilizer(itemValue)}
             style={styles.picker}
           >
-            <Picker.Item label="Chọn loại phân bón (Kg/cây)" value="" />
-            <Picker.Item label="Hữu cơ" value="huuco" />
-            <Picker.Item label="NPK" value="npk" />
-            <Picker.Item label="Vi lượng" value="viluong" />
+            <Picker.Item label="Chọn loại phân bón (VNĐ/KG)" value="" />
+            <Picker.Item label="Phân Hữu Cơ" value="huuco" />
+            <Picker.Item label="Phân Lân" value="lan" />
+            <Picker.Item label="Phân NPK 20-20-15+TE" value="npk" />
+            <Picker.Item label="Phân NPK 16-16-8" value="npk16" />
+            <Picker.Item label="Phân Kali" value="kali" />
+            <Picker.Item label="Phân Urê" value="dam" />
+            <Picker.Item label="Phân Vi Sinh" value="visinh" />
           </Picker>
-
-          <Text style={styles.label}>Số lần bón phân / năm:</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Nhập số lần bón phân cho cây"
-            keyboardType="numeric"
-            value={numberOfFertilizer}
-            onChangeText={setNumberOfFertilizer}
-          />
-
-          <Text style={styles.label}>
-            Chi phí ước tính phân bón sử dụng cho cây trên / năm (VNĐ):
-          </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Nhập chi phí ước tính"
-            keyboardType="numeric"
-            value={estimatedCost}
-            onChangeText={setEstimatedCost}
-          />
         </View>
       )}
       {/* Cây Cam */}
       {selectedPlant === "cam" && (
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Diện tích đất (hecta):</Text>
+          <Text style={styles.label}>Diện tích đất (m2):</Text>
           <TextInput
             style={styles.input}
             placeholder="Nhập diện tích đất trồng cam"
@@ -182,43 +230,45 @@ export default function TechniqueScreen() {
             onChangeText={setArea}
           />
 
-          <Text style={styles.label}>Số gốc sầu riêng:</Text>
+          <Text style={styles.label}>Số cây cam:</Text>
           <TextInput
             style={styles.input}
-            placeholder="Nhập số gốc sầu riêng"
+            placeholder="Nhập số cây cam"
             keyboardType="numeric"
             value={treeCount}
             onChangeText={setTreeCount}
           />
 
-          <Text style={styles.label}>Loại phân bón:</Text>
+          <Text style={styles.label}>Số phân bón cho mỗi cây (kg/ngày):</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nhập số phân bón cây"
+            keyboardType="numeric"
+            value={fertilizerPerTree}
+            onChangeText={setFertilizerPerTree}
+          />
+
+          <Text style={styles.label}>Loại phân bón: (KG)</Text>
           <Picker
             selectedValue={fertilizer}
             onValueChange={(itemValue) => setFertilizer(itemValue)}
             style={styles.picker}
           >
-            <Picker.Item label="Chọn loại phân bón (VNĐ/bao)" value="" />
-            <Picker.Item label="Hữu cơ" value="huuco" />
-            <Picker.Item label="Lân" value="lan" />
-            <Picker.Item label="NPK" value="npk" />
+            <Picker.Item label="Chọn loại phân bón (VNĐ/KG)" value="" />
+            <Picker.Item label="Phân Hữu Cơ" value="huuco" />
+            <Picker.Item label="Phân Lân" value="lan" />
+            <Picker.Item label="Phân NPK 20-20-15+TE" value="npk" />
+            <Picker.Item label="Phân NPK 16-16-8" value="npk16" />
+            <Picker.Item label="Phân Kali" value="kali" />
+            <Picker.Item label="Phân Urê" value="dam" />
+            <Picker.Item label="Phân Vi Sinh" value="visinh" />
           </Picker>
-
-          <Text style={styles.label}>
-            Chi phí ước tính khi sử dụng phân bón (VNĐ):
-          </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Nhập chi phí ước tính"
-            keyboardType="numeric"
-            value={estimatedCost}
-            onChangeText={setEstimatedCost}
-          />
         </View>
       )}
       {/* Cây Lúa */}
       {selectedPlant === "lua" && (
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Diện tích đất (hecta):</Text>
+          <Text style={styles.label}>Diện tích đất (m2):</Text>
           <TextInput
             style={styles.input}
             placeholder="Nhập diện tích đất trồng lúa"
@@ -227,35 +277,39 @@ export default function TechniqueScreen() {
             onChangeText={setArea}
           />
 
-          <Text style={styles.label}>Giống lúa</Text>
+          <Text style={styles.label}>Số mùa vụ:</Text>
           <TextInput
             style={styles.input}
-            placeholder="Nhập giống lúa"
+            placeholder="Nhập số mùa vụ trên năm"
             keyboardType="numeric"
             value={treeCount}
             onChangeText={setTreeCount}
           />
 
-          <Text style={styles.label}>Loại phân bón:</Text>
+          <Text style={styles.label}>Lượng phân bón/m2 (kg/m2/vụ):</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nhập số phân bón/m2"
+            keyboardType="numeric"
+            value={fertilizerPerTree}
+            onChangeText={setFertilizerPerTree}
+          />
+
+          <Text style={styles.label}>Chọn loại phân bón:</Text>
           <Picker
             selectedValue={fertilizer}
             onValueChange={(itemValue) => setFertilizer(itemValue)}
             style={styles.picker}
           >
-            <Picker.Item label="Chọn loại phân bón (VNĐ/bao)" value="" />
-            <Picker.Item label="Đạm Ure" value="dam" />
-            <Picker.Item label="Lân" value="lan" />
-            <Picker.Item label="Kali" value="kali" />
+            <Picker.Item label="Chọn loại phân bón (VNĐ/KG)" value="" />
+            <Picker.Item label="Phân Hữu Cơ" value="huuco" />
+            <Picker.Item label="Phân Lân" value="lan" />
+            <Picker.Item label="Phân NPK 20-20-15+TE" value="npk" />
+            <Picker.Item label="Phân NPK 16-16-8" value="npk16" />
+            <Picker.Item label="Phân Kali" value="kali" />
+            <Picker.Item label="Phân Urê" value="dam" />
+            <Picker.Item label="Phân Vi Sinh" value="visinh" />
           </Picker>
-
-          <Text style={styles.label}>Chi phí ước tính (VNĐ):</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Nhập chi phí ước tính"
-            keyboardType="numeric"
-            value={estimatedCost}
-            onChangeText={setEstimatedCost}
-          />
         </View>
       )}
 
@@ -263,23 +317,21 @@ export default function TechniqueScreen() {
       {actualCost && (
         <View style={styles.resultContainer}>
           <Text style={styles.resultText}>
-            Chi phí ước tính: {estimatedCost} VNĐ
-          </Text>
-          <Text style={styles.resultText}>
-            Kết quả thực tế: {actualCost} VNĐ
+            Với diện tích {area}(m2) {"\n"}Ước tính tổng chi phí bạn cần cho 1 năm là{" "}
+            {actualCost} (VNĐ)
           </Text>
         </View>
       )}
 
       {selectedPlant && selectedPlant !== "loai" && (
-        <TouchableOpacity style={styles.button} onPress={calculateCost}>
+        <TouchableOpacity style={styles.button} onPress={() => calculateCost(selectedPlant)}>
           <Text style={styles.buttonText}>Ước tính chi phí</Text>
         </TouchableOpacity>
       )}
 
       {selectedPlant && selectedPlant !== "loai" && (
         <TouchableOpacity style={styles.button} onPress={handleNavigate}>
-          <Text style={styles.buttonText}>Kỹ thuật canh tác</Text>
+          <Text style={styles.buttonText}>Xem Kỹ thuật canh tác</Text>
         </TouchableOpacity>
       )}
     </ScrollView>
@@ -295,10 +347,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: Colors.PRIMARY,
+    color: Colors.WHITE,
     marginBottom: 20,
     textAlign: "center",
-    backgroundColor: Colors.Green_YL,
+    backgroundColor: Colors.Green_x2,
     padding: 15,
     marginTop: 20,
     borderRadius: 5,
@@ -315,8 +367,11 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
     backgroundColor: Colors.GRAY_2,
-    borderRadius: 5,
-    marginBottom: 20,
+    borderRadius: 60,
+    marginBottom: 10,
+    shadowOpacity: 0.3,   
+    shadowRadius: 8,       
+    elevation: 6,
   },
   inputContainer: {
     marginBottom: 10,

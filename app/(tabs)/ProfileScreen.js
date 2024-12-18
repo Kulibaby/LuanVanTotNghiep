@@ -1,17 +1,18 @@
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, TextComponent} from 'react-native'
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, TextComponent, ToastAndroid} from 'react-native'
 import React, {useEffect, useState} from 'react'
 import {  useRouter } from 'expo-router'
 import { Colors } from './../../constants/Colors'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { auth, db } from './../../configs/FirebaseConfig'
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, userData } from 'firebase/firestore';
+import { signOut } from "firebase/auth";
 
 export default function ProfileScreen() {
 
     const router = useRouter();
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState('');
 
-    
+    // setUser(userDoc.data());
     useEffect(() => {
         const fetchUserData = async () => {
         try {
@@ -19,7 +20,7 @@ export default function ProfileScreen() {
             if (currentUser) {
                 const userDoc = await getDoc(doc(db, "users", currentUser.uid));
                 if (userDoc.exists()) {
-                    setUser(userDoc.data());
+                    setUser(userDoc.data());              
                 } else {
                     console.log("Không tìm thấy thông tin người dùng trong Firestore!");
                 }
@@ -31,7 +32,14 @@ export default function ProfileScreen() {
     fetchUserData();
     }, []);
 
-    
+    const handleSignOut = async () => {
+        signOut(auth).then(() => {
+            router.replace('auth/sign-in')
+            console.log("User Sign-out successful!");
+          }).catch((error) => {
+            console.log(error);
+          });
+    }
 
     const handleNavigation = (path) => {
         try {
@@ -45,12 +53,12 @@ export default function ProfileScreen() {
         <ScrollView contentContainerStyle={styles.container}>
             {/* Header */}
             <View style={styles.header}>
+                
                 <Image
                     source={require('./../../assets/images/avt-profile.jpg')}
                     style={styles.avatar}
                 />
                 <Text style={styles.user}>{user?.fullName}</Text>
-                <Text style={styles.user}>{user?.email}</Text>
             </View>
 
             <View style={styles.main}>
@@ -82,7 +90,8 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={()=>router.replace('auth/sign-in')}
+                    // onPress={()=>router.replace('auth/sign-in')}
+                    onPress={handleSignOut}
                     style={styles.logOutContainer}
                 >
                     <Text style={styles.logOut}>Đăng xuất</Text>

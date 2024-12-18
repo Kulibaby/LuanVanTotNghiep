@@ -12,10 +12,11 @@ export default function personalData() {
   const [phone, setPhone] = useState('');
   const [dayOfBirth, setDayOfBirth] = useState('');
   const [address, setAddress] = useState('');
+  const [gender, setGender] = useState('');
 
   useEffect(()=> {
     navigation.setOptions({
-      headerShows: true,
+      headerShown: true,
       headerTransparent: true,
       headerTitle: 'Thông tin cá nhân',
     })
@@ -33,6 +34,7 @@ export default function personalData() {
             setPhone(userData.phone || '');
             setDayOfBirth(userData.dayOfBirth || '');
             setAddress(userData.address || '');
+            setGender(userData.gender || '');
           } else {
             console.log("Không tìm thấy thông tin người dùng trong Firestore!");
           }
@@ -52,14 +54,19 @@ const updateUserData = async () => {
         phone,
         dayOfBirth,
         address,
+        gender,
       });
       console.log("Cập nhật thông tin thành công!");
       ToastAndroid.show("Cập nhật thành công!", ToastAndroid.LONG);
     }
   } catch (error) {
     console.log("Lỗi khi lấy thông tin người dùng:", error);
+    ToastAndroid.show('Cập nhật thất bại!', ToastAndroid.LONG);
   }
 }
+
+
+ 
 
   return (
     <View style={styles.container}>
@@ -87,6 +94,13 @@ const updateUserData = async () => {
           value={dayOfBirth}
           onChangeText={setDayOfBirth}
         />
+
+        <Text style={styles.label}>Giới tính:</Text>
+        <TextInput style={styles.input} 
+          value={gender}
+          onChangeText={setGender}
+        />
+
 
         <Text style={styles.label}>Địa chỉ:</Text>
         <TextInput style={styles.input} 
@@ -141,7 +155,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
-    marginBottom: 15,
+    marginBottom: 20,
   },
   containerButton: {
     marginTop: 30,
@@ -156,4 +170,27 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
   },
+  genderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  genderOption: {
+    flex: 1,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: Colors.GRAY,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  genderSelected: {
+    backgroundColor: Colors.PRIMARY,
+    borderColor: Colors.PRIMARY,
+  },
+  genderText: {
+    fontSize: 16,
+    color: Colors.PRIMARY,
+  },
+  
 })
